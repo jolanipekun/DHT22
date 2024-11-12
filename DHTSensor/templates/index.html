@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Temperature Control Interface</title>
+</head>
+<body>
+    <h1>Temperature Control Interface</h1>
+    <div>
+        <h2>Current Temperature: <span id="tempDisplay">Loading...</span> °C</h2>
+        <h3>Set Temperature Threshold</h3>
+        <input type="number" id="threshold" placeholder="Enter threshold">
+        <button onclick="setThreshold()">Update Threshold</button>
+
+        <h3>Control Servo Speed</h3>
+        <input type="number" id="speed" placeholder="Enter speed">
+        <button onclick="setServoSpeed()">Set Speed</button>
+    </div>
+
+    <script>
+        function setThreshold() {
+            let threshold = document.getElementById("threshold").value;
+            fetch("/update_threshold", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({threshold: threshold})
+            }).then(response => response.json())
+              .then(data => alert("Threshold updated!"));
+        }
+
+        function setServoSpeed() {
+            let speed = document.getElementById("speed").value;
+            fetch("/control_servo", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({speed: speed})
+            }).then(response => response.json())
+              .then(data => alert("Servo speed updated!"));
+        }
+
+        function getMetrics() {
+            fetch("/metrics")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("tempDisplay").innerText = data.temperature;
+            });
+        }
+        
+        setInterval(getMetrics, 3000); // Update metrics every 3 seconds
+    </script>
+</body>
+</html>
